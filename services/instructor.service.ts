@@ -59,3 +59,47 @@ export async function getMySections(
 
   return response.data;
 }
+
+export interface InstructorStudentRegistration {
+  id: number;
+  registeredAt: string;
+  student: {
+    id: number;
+    studentId: string;
+    name: string;
+    program: {
+      id: number;
+      name: string;
+      code: string;
+    };
+  };
+  section: {
+    id: number;
+    name: string;
+    course: {
+      id: number;
+      code: string;
+      title: string;
+    };
+  };
+}
+
+interface InstructorStudentsResponse {
+  success: boolean;
+  message: string;
+  data: InstructorStudentRegistration[];
+}
+
+export async function getMyStudents(
+  token: string
+): Promise<InstructorStudentRegistration[]> {
+  const response = await apiFetch<InstructorStudentsResponse>(
+    "/instructors/my-students",
+    {
+      method: "GET",
+      token,
+    }
+  );
+
+  return response.data;
+}

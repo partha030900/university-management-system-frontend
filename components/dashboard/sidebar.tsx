@@ -107,6 +107,13 @@ const { user, logout } = useAuthStore();
   icon={FileText}
   label="Exams"
 />
+
+<SidebarLink
+  href="/instructor/students"
+  icon={Users}
+  label="My Students"
+/>
+
   </>
 )}
 
