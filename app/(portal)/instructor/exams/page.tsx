@@ -5,7 +5,11 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { getMySections } from "@/services/instructor.service";
-import { createExam, type ExamType } from "@/services/exam.service";
+import {
+  createExam,
+  getMyExams,
+  type ExamType,
+} from "@/services/exam.service";
 
 export default function InstructorExamsPage() {
   const { accessToken } = useAuthStore();
@@ -25,6 +29,18 @@ export default function InstructorExamsPage() {
     queryFn: () => getMySections(accessToken!),
     enabled: !!accessToken,
   });
+
+  const {
+  data: examsResponse,
+  isLoading: isExamsLoading,
+  isError: isExamsError,
+} = useQuery({
+  queryKey: ["instructor-exams"],
+  queryFn: () => getMyExams(accessToken!),
+  enabled: !!accessToken,
+});
+
+const exams = examsResponse?.data ?? [];
 
   const examMutation = useMutation({
     mutationFn: () => {
@@ -179,7 +195,53 @@ export default function InstructorExamsPage() {
             {examMutation.isPending ? "Creating Exam..." : "Create Exam"}
           </button>
         </form>
+        
       )}
+      
+<div className="space-y-4">
+  <h2 className="text-xl font-semibold">My Exams</h2>
+
+  {isExamsLoading && <p>Loading exams...</p>}
+
+  {isExamsError && (
+    <p className="text-red-500">Failed to load exams.</p>
+  )}
+
+  {!isExamsLoading && !isExamsError && exams.length === 0 && (
+    <p className="text-sm text-muted-foreground">
+      No exams have been created yet.
+    </p>
+  )}
+
+  {exams.map((exam) => (
+    <div key={exam.id} className="rounded-xl border p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="font-semibold">{exam.title}</h3>
+          <p className="text-sm text-muted-foreground">
+            {exam.section.course.code} — {exam.section.name}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Semester: {exam.section.semester.name}
+          </p>
+        </div>
+
+        <span className="w-fit rounded-md bg-muted px-2 py-1 text-xs">
+          {exam.type}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-4 text-sm">
+        <p>Total marks: {exam.totalMarks}</p>
+        <p>
+          Exam date:{" "}
+          {new Date(exam.examDate).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 }
