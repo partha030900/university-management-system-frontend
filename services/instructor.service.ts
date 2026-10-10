@@ -19,3 +19,43 @@ export async function getInstructorCount(
 
   return response.data;
 }
+
+export interface InstructorSection {
+  id: number;
+  name: string;
+  capacity: number;
+  course: {
+    id: number;
+    code: string;
+    title: string;
+    credits: number;
+  };
+  semester: {
+    id: number;
+    [key: string]: unknown;
+  };
+  _count: {
+    registrations: number;
+    exams: number;
+  };
+}
+
+interface InstructorSectionsResponse {
+  success: boolean;
+  message: string;
+  data: InstructorSection[];
+}
+
+export async function getMySections(
+  token: string
+): Promise<InstructorSection[]> {
+  const response = await apiFetch<InstructorSectionsResponse>(
+    "/instructors/my-sections",
+    {
+      method: "GET",
+      token,
+    }
+  );
+
+  return response.data;
+}

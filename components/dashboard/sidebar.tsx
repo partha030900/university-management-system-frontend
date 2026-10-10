@@ -130,6 +130,12 @@ const { user, logout } = useAuthStore();
   label="Courses"
 />
 
+ <SidebarLink
+  href="/admin/registrations"
+  icon={ClipboardCheck}
+  label="Registrations"
+/>
+
 <SidebarLink
   href="/admin/reports"
   icon={BarChart3}

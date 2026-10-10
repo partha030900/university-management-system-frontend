@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { getAllRegistrations } from "@/services/registration.service";
 
 export default function AdminRegistrationsPage() {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const [search, setSearch] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState("ALL");
 
   const {
     data: registrations,
@@ -17,6 +20,36 @@ export default function AdminRegistrationsPage() {
     enabled: !!accessToken,
   });
 
+  const filteredRegistrations = registrations?.filter((registration) => {
+    const searchText = [
+      registration.student.name,
+      registration.student.studentId,
+      registration.section.course.code,
+      registration.section.course.title,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    const matchesSearch = searchText.includes(search.toLowerCase());
+
+    const paymentStatus = registration.payments.some(
+      (payment) => payment.status === "PAID"
+    )
+      ? "PAID"
+      : registration.payments.some(
+            (payment) => payment.status === "PENDING"
+          )
+        ? "PENDING"
+        : registration.payments.length > 0
+          ? "FAILED"
+          : "UNPAID";
+
+    const matchesPayment =
+      paymentFilter === "ALL" || paymentStatus === paymentFilter;
+
+    return matchesSearch && matchesPayment;
+  });
+
   return (
     <main className="space-y-6 p-6">
       <div>
@@ -24,6 +57,28 @@ export default function AdminRegistrationsPage() {
         <p className="mt-2 text-muted-foreground">
           View student registrations and payment statuses.
         </p>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          placeholder="Search student or course..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-md border bg-background px-4 py-2"
+        />
+
+        <select
+          value={paymentFilter}
+          onChange={(e) => setPaymentFilter(e.target.value)}
+          className="rounded-md border bg-background px-4 py-2"
+        >
+          <option value="ALL">All Payments</option>
+          <option value="PAID">Paid</option>
+          <option value="PENDING">Pending</option>
+          <option value="FAILED">Failed</option>
+          <option value="UNPAID">Unpaid</option>
+        </select>
       </div>
 
       {isLoading && <p>Loading registrations...</p>}
@@ -47,7 +102,7 @@ export default function AdminRegistrationsPage() {
             </thead>
 
             <tbody>
-              {registrations?.map((registration) => {
+              {filteredRegistrations?.map((registration) => {
                 const paymentStatus = registration.payments.some(
                   (payment) => payment.status === "PAID"
                 )
@@ -88,13 +143,15 @@ export default function AdminRegistrationsPage() {
                       </span>
                     </td>
                     <td className="p-4">
-                      {new Date(registration.registeredAt).toLocaleDateString()}
+                      {new Date(
+                        registration.registeredAt
+                      ).toLocaleDateString()}
                     </td>
                   </tr>
                 );
               })}
 
-              {registrations?.length === 0 && (
+              {filteredRegistrations?.length === 0 && (
                 <tr>
                   <td
                     colSpan={6}
