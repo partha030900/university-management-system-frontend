@@ -6,14 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   User,
-  BookOpen,
-  ClipboardCheck,
-  FileText,
-  Receipt,
-  Users,
-  BarChart3,
-  LogOut,
-} from "lucide-react";
+  BookOpen,ClipboardCheck,FileText,Receipt,Users,BarChart3,LogOut} from "lucide-react";
 import SidebarLink from "@/components/dashboard/sidebar-link";
 
 export default function Sidebar() {
@@ -21,8 +14,7 @@ export default function Sidebar() {
 
 const { user, logout } = useAuthStore();
 
-
-  return (
+ return (
     <aside className="hidden min-h-screen w-64 border-r bg-muted/30 p-4 md:block">
       <div className="mb-8">
         <h2 className="text-xl font-bold">
