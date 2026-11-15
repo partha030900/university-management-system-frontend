@@ -5,7 +5,6 @@ export interface AuthUser {
   email: string;
   role: UserRole;
 }
-
 export interface LoginResponse {
   success: boolean;
   message: string;
