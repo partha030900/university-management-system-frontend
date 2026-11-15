@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/services/api";
 import { useAuthStore } from "@/store/auth-store";
-import { getStudentById } from "@/services/student.service";
+import { getMyStudentProfile } from "@/services/student.service";
 
 interface ApiResponse {
   success: boolean;
@@ -114,7 +114,7 @@ export default function ResultsPage() {
     isError: isStudentError,
   } = useQuery({
     queryKey: ["student-profile", user?.id],
-    queryFn: () => getStudentById(user!.id, accessToken!),
+    queryFn: () => getMyStudentProfile(accessToken!),
     enabled: Boolean(user && accessToken),
   });
 

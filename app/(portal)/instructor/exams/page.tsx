@@ -2,17 +2,21 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {useMutation,useQuery,useQueryClient,} from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { getMySections } from "@/services/instructor.service";
-import {
-  createExam,
-  getMyExams,
-  type ExamType,
-} from "@/services/exam.service";
+import Link from "next/link";
+import {createExam,getMyExams,updateExam,deleteExam, type ExamType,} from "@/services/exam.service";
 
 export default function InstructorExamsPage() {
   const { accessToken } = useAuthStore();
+  const queryClient = useQueryClient();
+
+const [editingExamId, setEditingExamId] = useState<number | null>(null);
+const [editTitle, setEditTitle] = useState("");
+const [editType, setEditType] = useState<ExamType>("MIDTERM");
+const [editTotalMarks, setEditTotalMarks] = useState("");
+const [editExamDate, setEditExamDate] = useState("");
 
   const [title, setTitle] = useState("");
   const [type, setType] = useState<ExamType>("MIDTERM");
@@ -66,12 +70,53 @@ const exams = examsResponse?.data ?? [];
       setTotalMarks("100");
       setSectionId("");
       setExamDate("");
+      queryClient.invalidateQueries({ queryKey: ["instructor-exams"] });
     },
     onError: (error) => {
       alert(error.message);
     },
   });
 
+  const updateMutation = useMutation({
+  mutationFn: (data: {
+    examId: number;
+    title: string;
+    type: ExamType;
+    totalMarks: number;
+    examDate: string;
+  }) => {
+    if (!accessToken) throw new Error("You are not authenticated.");
+
+    return updateExam(
+      data.examId,
+      {
+        title: data.title,
+        type: data.type,
+        totalMarks: data.totalMarks,
+        examDate: data.examDate,
+      },
+      accessToken
+    );
+  },
+  onSuccess: () => {
+    alert("Exam updated successfully!");
+    setEditingExamId(null);
+    queryClient.invalidateQueries({ queryKey: ["instructor-exams"] });
+  },
+  onError: (error) => alert(error.message),
+});
+
+const deleteMutation = useMutation({
+  mutationFn: (examId: number) => {
+    if (!accessToken) throw new Error("You are not authenticated.");
+    return deleteExam(examId, accessToken);
+  },
+  onSuccess: () => {
+    alert("Exam deleted successfully!");
+    queryClient.invalidateQueries({ queryKey: ["instructor-exams"] });
+  },
+  onError: (error) => alert(error.message),
+});
   if (isLoading) {
     return <p className="p-6">Loading your sections...</p>;
   }
@@ -213,33 +258,156 @@ const exams = examsResponse?.data ?? [];
     </p>
   )}
 
-  {exams.map((exam) => (
-    <div key={exam.id} className="rounded-xl border p-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+{exams.map((exam) => (
+  <div key={exam.id} className="rounded-xl border p-4">
+    {editingExamId === exam.id ? (
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+
+          updateMutation.mutate({
+            examId: exam.id,
+            title: editTitle.trim(),
+            type: editType,
+            totalMarks: Number(editTotalMarks),
+            examDate: editExamDate,
+          });
+        }}
+      >
         <div>
-          <h3 className="font-semibold">{exam.title}</h3>
-          <p className="text-sm text-muted-foreground">
-            {exam.section.course.code} — {exam.section.name}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Semester: {exam.section.semester.name}
+          <label className="text-sm font-medium">Exam Title</label>
+          <input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            required
+            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Exam Type</label>
+          <select
+            value={editType}
+            onChange={(e) => setEditType(e.target.value as ExamType)}
+            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+          >
+            <option value="MIDTERM">Midterm</option>
+            <option value="FINAL">Final</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Total Marks</label>
+          <input
+            type="number"
+            min="1"
+            step="any"
+            value={editTotalMarks}
+            onChange={(e) => setEditTotalMarks(e.target.value)}
+            required
+            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Exam Date</label>
+          <input
+            type="date"
+            value={editExamDate}
+            onChange={(e) => setEditExamDate(e.target.value)}
+            required
+            className="mt-1 w-full rounded-md border bg-background px-3 py-2"
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={updateMutation.isPending}
+            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50"
+          >
+            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setEditingExamId(null)}
+            className="rounded-md border px-4 py-2 text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    ) : (
+      <>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="font-semibold">{exam.title}</h3>
+            <p className="text-sm text-muted-foreground">
+              {exam.section.course.code} — {exam.section.name}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Semester: {exam.section.semester.name}
+            </p>
+          </div>
+
+          <span className="w-fit rounded-md bg-muted px-2 py-1 text-xs">
+            {exam.type}
+          </span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-4 text-sm">
+          <p>Total marks: {exam.totalMarks}</p>
+          <p>
+            Exam date: {new Date(exam.examDate).toLocaleDateString()}
           </p>
         </div>
 
-        <span className="w-fit rounded-md bg-muted px-2 py-1 text-xs">
-          {exam.type}
-        </span>
-      </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href={`/instructor/results/${exam.id}`}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Manage Results
+          </Link>
 
-      <div className="mt-3 flex flex-wrap gap-4 text-sm">
-        <p>Total marks: {exam.totalMarks}</p>
-        <p>
-          Exam date:{" "}
-          {new Date(exam.examDate).toLocaleDateString()}
-        </p>
-      </div>
-    </div>
-  ))}
+          <button
+            type="button"
+            onClick={() => {
+              setEditingExamId(exam.id);
+              setEditTitle(exam.title);
+              setEditType(exam.type);
+              setEditTotalMarks(String(exam.totalMarks));
+              setEditExamDate(exam.examDate.slice(0, 10));
+            }}
+            className="rounded-md border px-4 py-2 text-sm font-medium"
+          >
+            Edit
+          </button>
+
+          <button
+            type="button"
+            disabled={deleteMutation.isPending}
+            onClick={() => {
+              const confirmed = window.confirm(
+                `Delete "${exam.title}"? Its associated results will also be deleted.`
+              );
+
+              if (confirmed) {
+                deleteMutation.mutate(exam.id);
+              }
+            }}
+            className="rounded-md border border-red-500 px-4 py-2 text-sm font-medium text-red-500 disabled:opacity-50"
+          >
+            Delete
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+))}
+
 </div>
 
     </div>

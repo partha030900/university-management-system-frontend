@@ -15,6 +15,28 @@ export async function loginUser(
   });
 }
 
+
+interface RegisterCredentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data: unknown;
+}
+
+export async function registerUser(
+  credentials: RegisterCredentials
+): Promise<RegisterResponse> {
+  return apiFetch<RegisterResponse>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(credentials),
+  });
+}
+
+
 export async function refreshAccessToken(): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/auth/refresh-token", {
     method: "POST",
@@ -24,5 +46,14 @@ export async function refreshAccessToken(): Promise<LoginResponse> {
 export async function logoutUser(): Promise<void> {
   await apiFetch("/auth/logout", {
     method: "POST",
+  });
+}
+
+export async function googleLoginUser(
+  idToken: string
+): Promise<LoginResponse> {
+  return apiFetch<LoginResponse>("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
   });
 }

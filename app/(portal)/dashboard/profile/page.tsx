@@ -1,19 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  UserRound,
-  GraduationCap,
-  IdCard,
-  Phone,
-  CalendarDays,
-  BookOpen,
-  RefreshCw,
-} from "lucide-react";
+import { UserRound,GraduationCap,IdCard,Phone,CalendarDays,BookOpen,RefreshCw,} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
-import { getStudentById } from "@/services/student.service";
+import { getMyStudentProfile } from "@/services/student.service";
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "Not provided";
@@ -66,7 +58,7 @@ export default function ProfilePage() {
     isFetching,
   } = useQuery({
     queryKey: ["student-profile", user?.id],
-    queryFn: () => getStudentById(user!.id, accessToken!),
+    queryFn: () => getMyStudentProfile(accessToken!),
     enabled: Boolean(user && accessToken),
   });
 

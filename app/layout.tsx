@@ -1,10 +1,9 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
 import QueryProvider from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
-
-
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,16 +12,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={"antialiased"}
-    >
+    <html lang="en" className="antialiased">
       <body className="min-h-full flex flex-col">
-        <QueryProvider>
-    {children}
-  </QueryProvider>
-  <Toaster/>
-  </body>
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          <QueryProvider>
+            {children}
+          </QueryProvider>
+          <Toaster />
+        </GoogleOAuthProvider>
+      </body>
     </html>
   );
 }

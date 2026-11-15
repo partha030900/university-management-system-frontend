@@ -66,3 +66,31 @@ export async function getMyExams(token: string) {
     token,
   });
 }
+
+export async function updateExam(
+  examId: number,
+  data: {
+    title?: string;
+    type?: "MIDTERM" | "FINAL";
+    totalMarks?: number;
+    sectionId?: number;
+    examDate?: string;
+  },
+  token: string
+) {
+  return apiFetch(`/exams/${examId}`, {
+    method: "PUT",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteExam(
+  examId: number,
+  token: string
+) {
+  return apiFetch(`/exams/${examId}`, {
+    method: "DELETE",
+    token,
+  });
+}

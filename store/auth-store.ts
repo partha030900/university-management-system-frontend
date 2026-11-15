@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { decodeAccessToken } from "@/lib/auth";
-import { loginUser, refreshAccessToken, logoutUser, } from "@/services/auth.service";
+import { loginUser, refreshAccessToken, logoutUser, googleLoginUser } from "@/services/auth.service";
 import type { AuthUser } from "@/types/auth";
 
 interface AuthState {
@@ -14,6 +14,8 @@ interface AuthState {
   refresh: () => Promise<void>;
   clearAuth: () => void;
   logout: () => Promise<void>;
+  googleLogin: (idToken: string) => Promise<AuthUser>;
+  
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -75,6 +77,22 @@ export const useAuthStore = create<AuthState>((set) => ({
       accessToken: null,
       isAuthenticated: false,
     }),
+
+    googleLogin: async (idToken) => {
+  const response = await googleLoginUser(idToken);
+
+  const { accessToken } = response.data;
+
+  const user = decodeAccessToken(accessToken);
+
+  set({
+    user,
+    accessToken,
+    isAuthenticated: true,
+  });
+
+  return user;
+},
 
 
 }));

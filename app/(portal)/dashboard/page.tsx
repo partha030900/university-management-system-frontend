@@ -2,18 +2,18 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-
 import { useAuthStore } from "@/store/auth-store";
-import { getStudentById } from "@/services/student.service";
+import { getMyStudentProfile } from "@/services/student.service";
+
 
 export default function DashboardPage() {
   const { user, accessToken } = useAuthStore();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["student-dashboard", user?.id],
-    queryFn: () => getStudentById(user!.id, accessToken!),
-    enabled: !!user && !!accessToken,
-  });
+  queryKey: ["student-dashboard", user?.id],
+  queryFn: () => getMyStudentProfile(accessToken!),
+  enabled: !!user && !!accessToken,
+});
 
   if (isLoading) {
     return (

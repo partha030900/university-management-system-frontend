@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  BookOpen,
-  Users,
-  GraduationCap,
-  RefreshCw,
-} from "lucide-react";
+import {BookOpen,Users,GraduationCap, RefreshCw} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
-import { getStudentById } from "@/services/student.service";
+import { getMyStudentProfile } from "@/services/student.service";
 import { createRegistration } from "@/services/registration.service";
 import { getAllSections } from "@/services/section.service";
 
@@ -26,7 +21,7 @@ export default function CoursesPage() {
   // Fetch the logged-in student's profile
   const studentQuery = useQuery({
     queryKey: ["student-profile", user?.id],
-    queryFn: () => getStudentById(user!.id, accessToken!),
+    queryFn: () => getMyStudentProfile(accessToken!),
     enabled: Boolean(
       user && accessToken && user.role === "STUDENT"
     ),

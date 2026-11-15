@@ -53,7 +53,7 @@ export default function HomePage() {
         </p>
 
         <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
-          Your University, Connected.
+          Where Students Stay Connected.
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-muted-foreground">
@@ -91,7 +91,7 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t px-6 py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} UniPortal. All rights reserved.
+        © {new Date().getFullYear()} UniPortal. All rights reserved By Partha Chowdhury.
       </footer>
     </main>
   );
