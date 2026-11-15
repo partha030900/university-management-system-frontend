@@ -6,17 +6,9 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-
 import { useAuthStore } from "@/store/auth-store";
-import {
-  studentProfileSchema,
-  type StudentProfileFormValues,
-} from "@/lib/validations/student";
-import {
-  getAllPrograms,
-  createMyStudentProfile,
-  type Program,
-} from "@/services/student.service";
+import { studentProfileSchema,type StudentProfileFormValues} from "@/lib/validations/student";
+import {getAllPrograms,createMyStudentProfile,type Program} from "@/services/student.service";
 
 export default function StudentProfileSetupPage() {
   const router = useRouter();
