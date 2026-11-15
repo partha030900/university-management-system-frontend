@@ -18,6 +18,7 @@ export default function PublicCoursesPage() {
     },
   ];
 
+  
   return (
     <main className="min-h-screen bg-background">
       <section className="border-b px-6 py-16 text-center">
