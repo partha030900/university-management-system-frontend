@@ -34,6 +34,7 @@ interface CreateCourseResponse {
   data: Course;
 }
 
+
 export const getAllCourses = async (): Promise<Course[]> => {
   const response = await apiFetch<CoursesResponse>("/courses");
   return response.data;
