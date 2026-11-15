@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,6 +28,7 @@ export default function ContactPage() {
     setEmail("");
     setMessage("");
   }
+  
 
   return (
     <main className="min-h-screen px-6 py-12">
