@@ -7,15 +7,15 @@ import type { AuthUser } from "@/types/auth";
 
 type UserRole = AuthUser["role"];
 
+
 interface AuthGuardProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
 }
 
-export default function AuthGuard({
-  children,
-  allowedRoles,
-}: AuthGuardProps) {
+export default function AuthGuard({children,
+  allowedRoles,}: AuthGuardProps) {
+  
   const router = useRouter();
 
   const { user, isAuthenticated, refresh } = useAuthStore();
