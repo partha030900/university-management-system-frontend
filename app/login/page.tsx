@@ -31,6 +31,7 @@ const demoUsers = {
   },
 };
 
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, googleLogin } = useAuthStore();
@@ -66,6 +67,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     }
   };
+  
 
   // Normal login
   const onSubmit = async (values: LoginFormValues) => {
