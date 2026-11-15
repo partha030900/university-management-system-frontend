@@ -14,6 +14,7 @@ export default function SidebarLink({
   icon: Icon,
   label,
 }: SidebarLinkProps) {
+ 
   return (
     <Link
       href={href}
